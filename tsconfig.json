@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "baseUrl": "./src",
+    "lib": ["es6"],
+    "allowJs": true,
+    "outDir": "dist",
+    "moduleResolution": "node"
+  }
+}
