@@ -7,7 +7,12 @@
     "dev": "npx nodemon",
     "start": "npx node dist/index.js",
     "build": "npx tsc --p tsconfig.production.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "new-migration": "npx sequelize-cli migration:generate --name",
+    "migrate": "npx sequelize-cli db:migrate",
+    "undo-migrate": "npx sequelize-cli db:migrate:undo:all",
+    "new-seed": "npx sequelize-cli seed:generate --name",
+    "seed": "npx sequelize-cli db:seed:all"
   },
   "repository": {
     "type": "git",
@@ -33,7 +38,10 @@
     "module-alias": "^2.2.2",
     "passport": "^0.5.0",
     "passport-jwt": "^4.0.0",
-    "redis": "^3.1.2"
+    "pg": "^8.7.1",
+    "pg-hstore": "^2.3.4",
+    "redis": "^3.1.2",
+    "sequelize": "^6.9.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.2",
@@ -42,8 +50,10 @@
     "@types/module-alias": "^2.0.1",
     "@types/node": "^16.11.6",
     "@types/passport-jwt": "^3.0.6",
+    "@types/pg": "^8.6.1",
     "@types/redis": "^2.8.32",
     "nodemon": "^2.0.14",
+    "sequelize-cli": "^6.3.0",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4"
   },

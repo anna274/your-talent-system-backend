@@ -1,3 +1,3 @@
-export { changeTimestampsFormat } from './changeTimestampsFormat';
-export * from './decode'
-export * from './buildPaginationQuery'
+export * from './changeTimestampsFormat';
+export * from './decode';
+export * from './buildPaginationQuery';
