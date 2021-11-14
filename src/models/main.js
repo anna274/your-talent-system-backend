@@ -5,6 +5,25 @@ import { DataTypes, Sequelize } from 'sequelize';
 import { db } from 'database';
 import { Role } from 'models/old/main';
 
+const defaultFields = {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: Sequelize.fn('uuid_generate_v4'),
+    primaryKey: true,
+    allowNull: false,
+  },
+  createdAt: {
+    allowNull: false,
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.fn('NOW'),
+  },
+  updatedAt: {
+    allowNull: false,
+    type: Sequelize.DATE,
+    defaultValue: Sequelize.fn('NOW'),
+  },
+};
+
 const Account = db.define('account', {
   id: {
     type: DataTypes.UUID,
@@ -126,7 +145,7 @@ const Project = db.define('project', {
     unique: true,
   },
   description: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
   },
   contact: {
     type: DataTypes.STRING,
@@ -167,7 +186,98 @@ const Project_Scope = db.define('project_scope', {}, { timestamps: false });
 Project.belongsToMany(Scope, { through: Project_Scope });
 Scope.belongsToMany(Project, { through: Project_Scope });
 
-// Project.belongsTo(Status);
-// Status.hasMany(Project);
+const Department = db.define('department', {
+  ...defaultFields,
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+});
 
-export { Account, Role, Account_Role, Project, Scope, Technology, Project_Scope, Project_Technology };
+const JobFunction = db.define('job_function', {
+  ...defaultFields,
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+});
+
+const Profile = db.define('profile', {
+  ...defaultFields,
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  surname: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  photoLink: {
+    type: DataTypes.STRING,
+  },
+  mobilePhone: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  carrierStartDate: {
+    type: DataTypes.DATE,
+  },
+  companyStartDate: {
+    type: DataTypes.DATE,
+  },
+});
+
+Profile.belongsTo(Department);
+Department.hasMany(Profile);
+
+Profile.belongsTo(JobFunction);
+JobFunction.hasMany(Profile);
+
+Profile.belongsTo(Account);
+Account.hasOne(Profile, {
+  onDelete: 'RESTRICT'
+});
+
+const Level = db.define('level', {
+  ...defaultFields,
+  value: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    unique: true,
+  },
+});
+
+const Skill = db.define('skill', {
+  ...defaultFields,
+});
+
+Skill.belongsTo(Level);
+Level.hasMany(Skill);
+
+Skill.belongsTo(Technology);
+Technology.hasMany(Skill);
+
+Skill.belongsTo(Profile);
+Profile.hasMany(Skill);
+
+export {
+  Account,
+  Role,
+  Account_Role,
+  Project,
+  Scope,
+  Technology,
+  Project_Scope,
+  Project_Technology,
+  Department,
+  JobFunction,
+  Profile,
+  Level,
+  Skill,
+};
