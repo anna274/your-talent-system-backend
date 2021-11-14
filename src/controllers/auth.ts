@@ -19,7 +19,6 @@ const generateRefreshToken = ({ id, role }) => {
 
 export const login = async (req, res, next) => {
   const { login, password } = req.body;
-  console.log('req.body', req.body);
   if (!login || !password) {
     return res
       .status(400)
@@ -57,31 +56,31 @@ export const login = async (req, res, next) => {
 };
 
 export const refresh = (req, res) => {
-  // try {
-  //   const { refreshToken, account } = req.body;
-  //   if(!account || !refreshToken) {
-  //     return res.status(400).send({ message: "Bad request" });
-  //   }
-  //   redisClient.get(account.id, (err, value) => {
-  //     if(value === refreshToken) {
-  //       const token = generateToken(account);
-  //       const newRefreshToken = generateRefreshToken(account);
-  //       redisClient.set(account.id, newRefreshToken);
-  //       res.status(200).json({
-  //         token: "Bearer " + token,
-  //         refreshToken: newRefreshToken,
-  //       });
-  //     } else {
-  //       res.status(403).send({ message: 'No refresh token' })
-  //     }
-  //   });
-  // } catch(e) {
-  //   res.status(500).send({ message: 'Server error' })
-  // }
+  try {
+    const { refreshToken, account } = req.body;
+    if(!account || !refreshToken) {
+      return res.status(400).send({ message: "Bad request" });
+    }
+    redisClient.get(account.id, (err, value) => {
+      if(value === refreshToken) {
+        const token = generateToken(account);
+        const newRefreshToken = generateRefreshToken(account);
+        redisClient.set(account.id, newRefreshToken);
+        res.status(200).json({
+          token: "Bearer " + token,
+          refreshToken: newRefreshToken,
+        });
+      } else {
+        res.status(403).send({ message: 'No refresh token' })
+      }
+    });
+  } catch(e) {
+    res.status(500).send({ message: 'Server error' })
+  }
 };
 
 export const logout = (req, res) => {
-  // const { accountId } = req.params;
-  // redisClient.del(accountId);
+  const { accountId } = req.params;
+  redisClient.del(accountId);
   return res.status(200).send({ message: 'Logout completed' });
 };

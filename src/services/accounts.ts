@@ -9,6 +9,9 @@ export const getAccountByLogin = (login: string): any => {
     include: {
       model: Role,
       attributes: ['name'],
+      through: {
+        attributes: []
+      }
     },
   });
 };
@@ -19,6 +22,9 @@ export const findById = (id: string): any => {
     include: {
       model: Role,
       attributes: ['name'],
+      through: {
+        attributes: []
+      }
     },
   });
 };
