@@ -7,6 +7,7 @@ import { default as projectsRouter } from 'routes/projects';
 import { default as departmentsRouter } from 'routes/departments';
 import { default as jobFunctionsRouter } from 'routes/jobFunctions';
 import { default as levelsRouter } from 'routes/levels';
+import { default as profilesRouter } from 'routes/profiles';
 import { passport } from 'index';
 import { AUTH_STRATEGY } from 'consts';
 
@@ -47,6 +48,11 @@ router.use(
   '/levels',
   passport.authenticate(AUTH_STRATEGY, { session: false }),
   levelsRouter
+);
+router.use(
+  '/profiles',
+  passport.authenticate(AUTH_STRATEGY, { session: false }),
+  profilesRouter
 );
 
 export default router;

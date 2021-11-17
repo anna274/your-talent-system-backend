@@ -214,6 +214,10 @@ const Profile = db.define('profile', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  patronymic: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   photoLink: {
     type: DataTypes.STRING,
   },
@@ -231,6 +235,9 @@ const Profile = db.define('profile', {
   companyStartDate: {
     type: DataTypes.DATE,
   },
+  summary: {
+    type: DataTypes.TEXT,
+  },
 });
 
 Profile.belongsTo(Department);
@@ -241,7 +248,7 @@ JobFunction.hasMany(Profile);
 
 Profile.belongsTo(Account);
 Account.hasOne(Profile, {
-  onDelete: 'RESTRICT'
+  onDelete: 'RESTRICT',
 });
 
 const Level = db.define('level', {
@@ -258,13 +265,13 @@ const Skill = db.define('skill', {
 });
 
 Skill.belongsTo(Level);
-Level.hasMany(Skill);
+Level.hasMany(Skill, { onDelete: 'SET NULL', hooks: true });
 
 Skill.belongsTo(Technology);
-Technology.hasMany(Skill);
+Technology.hasMany(Skill, { onDelete: 'SET NULL', hooks: true });
 
 Skill.belongsTo(Profile);
-Profile.hasMany(Skill);
+Profile.hasMany(Skill, { onDelete: 'cascade', hooks: true });
 
 export {
   Account,

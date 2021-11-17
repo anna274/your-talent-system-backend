@@ -1,7 +1,6 @@
-// const Account = require('../models').Account;
-// const Role = require('../models').Role;
-
 import { Account, Role } from 'models/main';
+import { getSpecialistRole } from 'services/roles'
+import { decode } from 'helpers'
 
 export const getAccountByLogin = (login: string): any => {
   return Account.findOne({
@@ -10,8 +9,8 @@ export const getAccountByLogin = (login: string): any => {
       model: Role,
       attributes: ['name'],
       through: {
-        attributes: []
-      }
+        attributes: [],
+      },
     },
   });
 };
@@ -23,20 +22,26 @@ export const findById = (id: string): any => {
       model: Role,
       attributes: ['name'],
       through: {
-        attributes: []
-      }
+        attributes: [],
+      },
     },
   });
 };
 
-export const createAccount = (login: string, password: string, roleId): any => {
-  return Account.create({
-    login,
-    password,
-    roles: [
-      {
-        account_role: [roleId],
-      },
-    ],
-  });
+export const createAccount = async (login: string, password: string, roleId?: string) => {
+  if(!roleId) {
+    const specialistRole = await getSpecialistRole();
+    roleId = specialistRole.dataValues.id;
+  }
+  const decodedPsw = await decode(password);
+  return (
+    Account.create({ login, password: decodedPsw })
+      .then(async (account) => {
+        // @ts-ignore
+        await account.setRoles([roleId]);
+        return account;
+      })
+      // @ts-ignore
+      .then((account) => findById(account.id))
+  );
 };

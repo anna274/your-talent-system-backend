@@ -25,7 +25,6 @@ export const login = async (req, res, next) => {
       .json({ message: 'Bad request. Login and password are requested.' });
   }
   const result = await getAccountByLogin(login);
-  console.log('result', result)
   if (!result) {
     return res
       .status(401)
