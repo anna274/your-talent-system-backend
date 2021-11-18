@@ -8,6 +8,9 @@ import { default as departmentsRouter } from 'routes/departments';
 import { default as jobFunctionsRouter } from 'routes/jobFunctions';
 import { default as levelsRouter } from 'routes/levels';
 import { default as profilesRouter } from 'routes/profiles';
+import { default as positionStatusesRouter } from 'routes/positionStatuses';
+import { default as prioritiesRouter } from 'routes/priorities';
+import { default as positionsRouter } from 'routes/positions';
 import { passport } from 'index';
 import { AUTH_STRATEGY } from 'consts';
 
@@ -53,6 +56,21 @@ router.use(
   '/profiles',
   passport.authenticate(AUTH_STRATEGY, { session: false }),
   profilesRouter
+);
+router.use(
+  '/positions-statuses',
+  passport.authenticate(AUTH_STRATEGY, { session: false }),
+  positionStatusesRouter
+);
+router.use(
+  '/priorities',
+  passport.authenticate(AUTH_STRATEGY, { session: false }),
+  prioritiesRouter
+);
+router.use(
+  '/positions',
+  passport.authenticate(AUTH_STRATEGY, { session: false }),
+  positionsRouter
 );
 
 export default router;

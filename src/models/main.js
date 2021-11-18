@@ -273,6 +273,75 @@ Technology.hasMany(Skill, { onDelete: 'SET NULL', hooks: true });
 Skill.belongsTo(Profile);
 Profile.hasMany(Skill, { onDelete: 'cascade', hooks: true });
 
+const Priority = db.define('priority', {
+  ...defaultFields,
+  value: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    unique: true,
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  }
+}, { timestamps: false });
+
+const Requirement = db.define('requirement', {}, { timestamps: false });
+
+Requirement.belongsTo(Priority);
+Priority.hasMany(Requirement, { onDelete: 'SET NULL', hooks: true });
+
+Requirement.belongsTo(Technology);
+Technology.hasMany(Requirement, { onDelete: 'SET NULL', hooks: true });
+
+Requirement.belongsTo(Level);
+Level.hasMany(Requirement, { onDelete: 'SET NULL', hooks: true });
+
+const Status = db.define('status', {
+  ...defaultFields,
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+});
+
+const Position = db.define('position', {
+  ...defaultFields,
+});
+
+Position.belongsTo(Status);
+Status.hasMany(Position, { onDelete: 'SET NULL', hooks: true });
+
+Position.belongsTo(JobFunction);
+JobFunction.hasMany(Position, { onDelete: 'SET NULL', hooks: true });
+
+Position.belongsTo(Project, { onDelete: 'cascade', hooks: true });
+Project.hasMany(Position, { onDelete: 'SET NULL', hooks: true });
+
+Requirement.belongsTo(Position, { onDelete: 'cascade', hooks: true });
+Position.hasMany(Requirement, { onDelete: 'SET NULL', hooks: true });
+
+const Candidate = db.define(
+  'candidate',
+  {
+    koef: {
+      type: DataTypes.DOUBLE,
+      allowNull: false,
+    },
+  },
+  { timestamps: false }
+);
+
+Position.belongsToMany(Profile, { through: Candidate });
+Profile.belongsToMany(Position, { through: Candidate });
+
+Position.belongsTo(Profile, { onDelete: 'CASCADE', hooks: true });
+Profile.hasOne(Position, {
+  onDelete: 'RESTRICT',
+});
+
 export {
   Account,
   Role,
@@ -287,4 +356,9 @@ export {
   Profile,
   Level,
   Skill,
+  Requirement,
+  Priority,
+  Position,
+  Candidate,
+  Status
 };
