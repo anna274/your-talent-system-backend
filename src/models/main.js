@@ -246,7 +246,7 @@ Department.hasMany(Profile);
 Profile.belongsTo(JobFunction);
 JobFunction.hasMany(Profile);
 
-Profile.belongsTo(Account);
+Profile.belongsTo(Account, { onDelete: 'CASCADE', hooks: true });
 Account.hasOne(Profile, {
   onDelete: 'RESTRICT',
 });

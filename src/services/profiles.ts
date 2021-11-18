@@ -8,7 +8,7 @@ import {
   Level,
 } from 'models/main';
 import { createAccount } from 'services/accounts';
-import { createSkills } from 'services/skills';
+import { createSkills, deleteSkillsByProfileId } from 'services/skills';
 
 export const findAll = (): any => {
   return Profile.findAll({
@@ -105,6 +105,7 @@ export const update = async (profileData) => {
         departmentId: department.id,
         jobFunctionId: job_function.id,
       });
+      await deleteSkillsByProfileId(id);
       // @ts-ignore
       await project.setSkills(savedSkills.map(({id}) => id));
     })
@@ -112,5 +113,9 @@ export const update = async (profileData) => {
 };
 
 export const destroy = async (id: string) => {
-  return Profile.destroy({ where: { id } });
+  await deleteSkillsByProfileId(id);
+  const profile = await Profile.findOne({ where: {id} });
+  // @ts-ignore
+  await Account.destroy({ where: { id: profile.dataValues.accountId } });
+  return profile.destroy();
 };
