@@ -72,7 +72,6 @@ export const findById = (id: string): any => {
 export const create = async (accountData, profileData) => {
   const { login, password } = accountData;
   const profileAccount = await createAccount(login, password);
-  console.log('profileAccount', profileAccount);
   const { skills, department, jobFunction, ...restInfo } = profileData;
   const changedSkills = skills.map(({ technology, level }) => ({
     technologyId: technology.id,

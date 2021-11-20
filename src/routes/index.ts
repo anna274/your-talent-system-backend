@@ -8,7 +8,6 @@ import { default as departmentsRouter } from 'routes/departments';
 import { default as jobFunctionsRouter } from 'routes/jobFunctions';
 import { default as levelsRouter } from 'routes/levels';
 import { default as profilesRouter } from 'routes/profiles';
-import { default as positionStatusesRouter } from 'routes/positionStatuses';
 import { default as prioritiesRouter } from 'routes/priorities';
 import { default as positionsRouter } from 'routes/positions';
 import { passport } from 'index';
@@ -56,11 +55,6 @@ router.use(
   '/profiles',
   passport.authenticate(AUTH_STRATEGY, { session: false }),
   profilesRouter
-);
-router.use(
-  '/positions-statuses',
-  passport.authenticate(AUTH_STRATEGY, { session: false }),
-  positionStatusesRouter
 );
 router.use(
   '/priorities',

@@ -287,7 +287,7 @@ const Priority = db.define('priority', {
   }
 }, { timestamps: false });
 
-const Requirement = db.define('requirement', {}, { timestamps: false });
+const Requirement = db.define('requirement', { ...defaultFields }, { timestamps: false });
 
 Requirement.belongsTo(Priority);
 Priority.hasMany(Requirement, { onDelete: 'SET NULL', hooks: true });
@@ -298,30 +298,40 @@ Technology.hasMany(Requirement, { onDelete: 'SET NULL', hooks: true });
 Requirement.belongsTo(Level);
 Level.hasMany(Requirement, { onDelete: 'SET NULL', hooks: true });
 
-const Status = db.define('status', {
+const Duty = db.define('duty', {
   ...defaultFields,
-  name: {
-    type: DataTypes.STRING,
+  text: {
+    type: DataTypes.TEXT,
     allowNull: false,
-    unique: true,
   },
 });
 
 const Position = db.define('position', {
   ...defaultFields,
+  isOpen: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  },
+  applicationDate: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  closeDate: {
+    type: DataTypes.DATE,
+  }
 });
-
-Position.belongsTo(Status);
-Status.hasMany(Position, { onDelete: 'SET NULL', hooks: true });
 
 Position.belongsTo(JobFunction);
 JobFunction.hasMany(Position, { onDelete: 'SET NULL', hooks: true });
 
-Position.belongsTo(Project, { onDelete: 'cascade', hooks: true });
+Position.belongsTo(Project);
 Project.hasMany(Position, { onDelete: 'SET NULL', hooks: true });
 
 Requirement.belongsTo(Position, { onDelete: 'cascade', hooks: true });
 Position.hasMany(Requirement, { onDelete: 'SET NULL', hooks: true });
+
+Duty.belongsTo(Position, { onDelete: 'cascade', hooks: true });
+Position.hasMany(Duty, { onDelete: 'SET NULL', hooks: true });
 
 const Candidate = db.define(
   'candidate',
@@ -337,10 +347,8 @@ const Candidate = db.define(
 Position.belongsToMany(Profile, { through: Candidate });
 Profile.belongsToMany(Position, { through: Candidate });
 
-Position.belongsTo(Profile, { onDelete: 'CASCADE', hooks: true });
-Profile.hasOne(Position, {
-  onDelete: 'RESTRICT',
-});
+Position.belongsTo(Profile);
+Profile.hasOne(Position);
 
 export {
   Account,
@@ -360,5 +368,5 @@ export {
   Priority,
   Position,
   Candidate,
-  Status
+  Duty,
 };

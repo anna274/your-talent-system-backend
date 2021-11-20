@@ -54,7 +54,7 @@ export const deleteOne = async(req, res, next) => {
   try {
     const { positionId } = req.params;
     await destroy(positionId);
-    logger.info('delete position')
+    logger.info('delete position ', positionId)
     res.send();
   } catch(e) {
     res.status(500).send({ message: 'Server error' });

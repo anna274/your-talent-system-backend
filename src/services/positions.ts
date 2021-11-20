@@ -6,10 +6,14 @@ import {
   Priority,
   Project,
   Profile,
-  Status,
   Requirement,
+  Duty,
 } from 'models/main';
-import { createRequirements, deleteRequirementsByPositionId } from 'services/requirement';
+import {
+  createRequirements,
+  deleteRequirementsByPositionId,
+} from 'services/requirement';
+import { createDuties, deleteDutiesByPositionId } from 'services/duties';
 
 export const findAll = (): any => {
   return Position.findAll({
@@ -23,8 +27,8 @@ export const findAll = (): any => {
         attributes: ['id', 'name'],
       },
       {
-        model: Status,
-        attributes: ['id', 'name'],
+        model: Duty,
+        attributes: ['id', 'text'],
       },
       {
         model: Profile,
@@ -64,11 +68,11 @@ export const findById = (id: string): any => {
         attributes: ['id', 'name'],
       },
       {
-        model: Status,
-        attributes: ['id', 'name'],
+        model: Profile,
       },
       {
-        model: Profile,
+        model: Duty,
+        attributes: ['id', 'text'],
       },
       {
         model: Requirement,
@@ -93,50 +97,57 @@ export const findById = (id: string): any => {
 };
 
 export const create = async (positionData) => {
-  const { requirements, project, job_function, status, ...restInfo } = positionData;
-  const changedRequirements = requirements.map(({ technology, level, priority }) => ({
-    technologyId: technology.id,
-    levelId: level.id,
-    priority: priority.id,
-  }));
+  const { requirements, project, job_function, ...restInfo } = positionData;
+  const changedRequirements = requirements.map(
+    ({ technology, level, priority }) => ({
+      technologyId: technology.id,
+      levelId: level.id,
+      priorityId: priority.id,
+    })
+  );
+
   return Position.create(
     {
       ...restInfo,
-      statusId: status.id,
       projectId: project.id,
       jobFunctionId: job_function.id,
       requirements: changedRequirements,
     },
-    { include: [Requirement] }
+    { include: [Requirement, Duty] }
     //@ts-ignore
   ).then((profile) => findById(profile.id));
 };
 
 export const update = async (positionData) => {
-  const { id, requirements, project, job_function, status, ...restInfo } = positionData;
-  const changedRequirements = requirements.map(({ technology, level, priority }) => ({
-    technologyId: technology.id,
-    levelId: level.id,
-    priority: priority.id,
+  const { id, requirements, project, duties, job_function, ...restInfo } = positionData;
+  const changedRequirements = requirements.map(
+    ({ technology, level, priority }) => ({
+      technologyId: technology.id,
+      levelId: level.id,
+      priorityId: priority.id,
+      positionId: id,
+    })
+  );
+  const changedDuties = duties.map(({ text }) => ({
+    text,
+    positionId: id,
   }));
-  const savedRequirements = await createRequirements(changedRequirements);
+  await deleteDutiesByPositionId(id);
+  await deleteRequirementsByPositionId(id);
+  await createRequirements(changedRequirements);
+  await createDuties(changedDuties);
   return findById(id)
-    .then(async (project) => {
-      await project.update({
+    .then(async (position) => {
+      await position.update({
         ...restInfo,
-        statusId: status.id,
         projectId: project.id,
         jobFunctionId: job_function.id,
       });
-      await deleteRequirementsByPositionId(id);
-      // @ts-ignore
-      await project.setRequirements(savedRequirements.map(({id}) => id));
     })
     .then(() => findById(id));
 };
 
 export const destroy = async (id: string) => {
-  await deleteRequirementsByPositionId(id);
-  const profile = await Position.findOne({ where: {id} });
+  const profile = await Position.findOne({ where: { id } });
   return profile.destroy();
 };
