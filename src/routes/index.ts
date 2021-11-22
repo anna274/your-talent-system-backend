@@ -16,6 +16,7 @@ import { AUTH_STRATEGY } from 'consts';
 const router = express.Router();
 
 router.use('/auth', authRouter);
+router.use('/positions', positionsRouter);
 router.use(
   '/accounts',
   passport.authenticate(AUTH_STRATEGY, { session: false }),
@@ -61,10 +62,10 @@ router.use(
   passport.authenticate(AUTH_STRATEGY, { session: false }),
   prioritiesRouter
 );
-router.use(
-  '/positions',
-  passport.authenticate(AUTH_STRATEGY, { session: false }),
-  positionsRouter
-);
+// router.use(
+//   '/positions',
+//   passport.authenticate(AUTH_STRATEGY, { session: false }),
+//   positionsRouter
+// );
 
 export default router;

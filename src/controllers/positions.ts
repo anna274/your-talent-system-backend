@@ -1,4 +1,4 @@
-import { findAll, findById, create, update, destroy } from 'services/positions' 
+import { findAll, findById, create, update, destroy, generateCandidates } from 'services/positions' 
 import { logger } from 'index';
 
 export const getAll = async(req, res, next) => {
@@ -56,6 +56,18 @@ export const deleteOne = async(req, res, next) => {
     await destroy(positionId);
     logger.info('delete position ', positionId)
     res.send();
+  } catch(e) {
+    res.status(500).send({ message: 'Server error' });
+    logger.error(e);
+  }
+}
+
+export const getCandidates = async(req, res, next) => {
+  try {
+    const { positionId } = req.params;
+    const candidates = await generateCandidates(positionId);
+    logger.info('GET candidates', candidates)
+    res.send(candidates);
   } catch(e) {
     res.status(500).send({ message: 'Server error' });
     logger.error(e);

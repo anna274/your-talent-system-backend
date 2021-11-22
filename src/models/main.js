@@ -284,6 +284,9 @@ const Priority = db.define('priority', {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true,
+  },
+  deviation: {
+    type: DataTypes.INTEGER,
   }
 }, { timestamps: false });
 

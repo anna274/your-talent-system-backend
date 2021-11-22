@@ -14,6 +14,7 @@ import {
   deleteRequirementsByPositionId,
 } from 'services/requirement';
 import { createDuties, deleteDutiesByPositionId } from 'services/duties';
+import { findProfilesByJobFunction } from 'services/profiles';
 
 export const findAll = (): any => {
   return Position.findAll({
@@ -88,7 +89,7 @@ export const findById = (id: string): any => {
           },
           {
             model: Priority,
-            attributes: ['id', 'value', 'name'],
+            attributes: ['id', 'value', 'name', 'deviation'],
           },
         ],
       },
@@ -119,7 +120,8 @@ export const create = async (positionData) => {
 };
 
 export const update = async (positionData) => {
-  const { id, requirements, project, duties, job_function, ...restInfo } = positionData;
+  const { id, requirements, project, duties, job_function, ...restInfo } =
+    positionData;
   const changedRequirements = requirements.map(
     ({ technology, level, priority }) => ({
       technologyId: technology.id,
@@ -150,4 +152,76 @@ export const update = async (positionData) => {
 export const destroy = async (id: string) => {
   const profile = await Position.findOne({ where: { id } });
   return profile.destroy();
+};
+
+export const calculateThresholds = (position) => {
+  const { requirements } = position;
+  return requirements.map(({ technology, level, priority }) => {
+    const { id: technologyId } = technology;
+    const { value: levelValue } = level;
+    const { deviation } = priority;
+    let threshold = levelValue - deviation;
+    if (threshold < 0) {
+      threshold = 0;
+    }
+    return { technologyId, threshold };
+  });
+};
+
+export const isCandidateIdeal = (requirementsThresholds, profile) => {
+  return requirementsThresholds.every(({ threshold, technologyId }) => {
+    const { skills } = profile;
+    const requiredSkill = skills.find(
+      ({ technology: { id } }) => id === technologyId
+    );
+    return requiredSkill ? requiredSkill.level.value >= threshold : false;
+  });
+};
+
+export const calculateInterval = (reqThresholds, profile) => {
+  if(isCandidateIdeal(reqThresholds, profile)) {
+    return 0;
+  }
+  const { skills } = profile;
+  const sum = reqThresholds.reduce((res, { technologyId, threshold }) => {
+    const requiredSkill = skills.find(
+      ({ technology: { id } }) => id === technologyId
+    );
+    const level = requiredSkill ? requiredSkill.level.value : 0;
+    return res + (threshold - level) * (threshold - level);
+  }, [0]);
+  return Math.sqrt(sum);
+}
+
+const compare = (a, b) => {
+  if (a.koef > b.koef) {
+    return -1;
+  }
+  if (a.koef < b.koef) {
+    return 1;
+  }
+  return 0;
+};
+
+export const sortCandidatesByKoef = (candidates) =>  candidates.sort(compare);
+
+export const generateCandidates = async (positionId: string) => {
+  const { dataValues: position } = await findById(positionId);
+  const possibleCandidates = await findProfilesByJobFunction(
+    position.jobFunctionId
+  );
+  const requirementsThresholds = calculateThresholds(position);
+  let maxInterval = 0;
+  const intervals = possibleCandidates.map(possibleCandidate => {
+    const interval = calculateInterval(requirementsThresholds, possibleCandidate);
+    if(maxInterval < interval) {
+      maxInterval = interval;
+    };
+    return interval;
+  });
+  const candidates = possibleCandidates.map((possibleCandidate, i) => {
+    const koef = 1 - (maxInterval !== 0 ? intervals[i] / maxInterval: 1);
+    return { profile: possibleCandidate, koef, positionId: position.id };
+  });
+  return sortCandidatesByKoef(candidates);
 };
