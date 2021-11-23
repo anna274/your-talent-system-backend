@@ -1,4 +1,4 @@
-import { Project, Scope, Technology } from 'models/main';
+import { Project, Scope, Technology, Position } from 'models/main';
 
 export const findAll = (): any => {
   return Project.findAll({
@@ -16,6 +16,10 @@ export const findAll = (): any => {
         through: {
           attributes: [],
         },
+      },
+      {
+        model: Position,
+        attributes: ['id'],
       },
     ],
   });
@@ -38,6 +42,10 @@ export const findById = (id: string) => {
         through: {
           attributes: [],
         },
+      },
+      {
+        model: Position,
+        attributes: ['id'],
       },
     ],
   });

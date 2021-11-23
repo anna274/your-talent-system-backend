@@ -8,13 +8,16 @@ import {
   Profile,
   Requirement,
   Duty,
+  Candidate,
+  Skill,
+  Department,
 } from 'models/main';
 import {
   createRequirements,
   deleteRequirementsByPositionId,
 } from 'services/requirement';
 import { createDuties, deleteDutiesByPositionId } from 'services/duties';
-import { findProfilesByJobFunction } from 'services/profiles';
+import { findProfilesByJobFunction, findById as findProfileById } from 'services/profiles';
 
 export const findAll = (): any => {
   return Position.findAll({
@@ -70,6 +73,26 @@ export const findById = (id: string): any => {
       },
       {
         model: Profile,
+        include: [
+          {
+            model: Skill,
+            attributes: ['id'],
+            include: [
+              {
+                model: Technology,
+                attributes: ['id', 'name'],
+              },
+              {
+                model: Level,
+                attributes: ['id', 'value'],
+              },
+            ],
+          },
+          {
+            model: Department,
+            attributes: ['id', 'name'],
+          },
+        ],
       },
       {
         model: Duty,
@@ -97,6 +120,16 @@ export const findById = (id: string): any => {
   });
 };
 
+export const findOneWithProfile = async (id) => {
+  const { dataValues: position } = await findById(id);
+  if(!position.profileId) {
+    return position;
+  }
+  const { dataValues: profile } = await findProfileById(position.profileId);
+  console.log('position', position)
+  return { ...position, profile };
+}
+
 export const create = async (positionData) => {
   const { requirements, project, job_function, ...restInfo } = positionData;
   const changedRequirements = requirements.map(
@@ -116,7 +149,7 @@ export const create = async (positionData) => {
     },
     { include: [Requirement, Duty] }
     //@ts-ignore
-  ).then((profile) => findById(profile.id));
+  ).then((profile) => findOneWithProfile(profile.id));
 };
 
 export const update = async (positionData) => {
@@ -146,7 +179,7 @@ export const update = async (positionData) => {
         jobFunctionId: job_function.id,
       });
     })
-    .then(() => findById(id));
+    .then(() => findOneWithProfile(id));
 };
 
 export const destroy = async (id: string) => {
@@ -178,8 +211,16 @@ export const isCandidateIdeal = (requirementsThresholds, profile) => {
   });
 };
 
+export const calculateMaxInterval = (reqThresholds) => {
+  const sum = reqThresholds.reduce(
+    (res, { threshold }) => res + threshold * threshold,
+    0
+  );
+  return Math.sqrt(sum);
+};
+
 export const calculateInterval = (reqThresholds, profile) => {
-  if(isCandidateIdeal(reqThresholds, profile)) {
+  if (isCandidateIdeal(reqThresholds, profile)) {
     return 0;
   }
   const { skills } = profile;
@@ -189,9 +230,9 @@ export const calculateInterval = (reqThresholds, profile) => {
     );
     const level = requiredSkill ? requiredSkill.level.value : 0;
     return res + (threshold - level) * (threshold - level);
-  }, [0]);
+  }, 0);
   return Math.sqrt(sum);
-}
+};
 
 const compare = (a, b) => {
   if (a.koef > b.koef) {
@@ -203,7 +244,7 @@ const compare = (a, b) => {
   return 0;
 };
 
-export const sortCandidatesByKoef = (candidates) =>  candidates.sort(compare);
+export const sortCandidatesByKoef = (candidates) => candidates.sort(compare);
 
 export const generateCandidates = async (positionId: string) => {
   const { dataValues: position } = await findById(positionId);
@@ -211,17 +252,42 @@ export const generateCandidates = async (positionId: string) => {
     position.jobFunctionId
   );
   const requirementsThresholds = calculateThresholds(position);
-  let maxInterval = 0;
-  const intervals = possibleCandidates.map(possibleCandidate => {
-    const interval = calculateInterval(requirementsThresholds, possibleCandidate);
-    if(maxInterval < interval) {
-      maxInterval = interval;
-    };
-    return interval;
-  });
+  // let maxInterval = 0;
+  // const intervals = possibleCandidates.map(possibleCandidate => {
+  //   const interval = calculateInterval(requirementsThresholds, possibleCandidate);
+  //   if(maxInterval < interval) {
+  //     maxInterval = interval;
+  //   };
+  //   return interval;
+  // });
+  let maxInterval = calculateMaxInterval(requirementsThresholds);
+  const intervals = possibleCandidates.map((possibleCandidate) =>
+    calculateInterval(requirementsThresholds, possibleCandidate)
+  );
   const candidates = possibleCandidates.map((possibleCandidate, i) => {
-    const koef = 1 - (maxInterval !== 0 ? intervals[i] / maxInterval: 1);
+    const koef = 1 - (maxInterval !== 0 ? intervals[i] / maxInterval : 1);
     return { profile: possibleCandidate, koef, positionId: position.id };
   });
-  return sortCandidatesByKoef(candidates);
+  return sortCandidatesByKoef(
+    candidates.filter((candidate) => candidate.koef > 0)
+  );
+};
+
+export const addToCandidates = async (positionId, profileId, koef) => {
+  await Candidate.create({ positionId, profileId, koef });
+  return findOneWithProfile(positionId);
+};
+
+export const removeFromCandidates = async (positionId, profileId) => {
+  await Candidate.destroy({ where: { profileId, positionId } });
+  return findOneWithProfile(positionId);
+};
+
+export const setProfile = async (positionId, profileId) => {
+  await Candidate.destroy({ where: { positionId } });
+  await Position.update(
+    { profileId, isOpen: false, closeDate: new Date() },
+    { where: { id: positionId } }
+  );
+  return findOneWithProfile(positionId);
 };
