@@ -30,7 +30,7 @@ export const login = async (req, res, next) => {
       .status(401)
       .send({
         incorrectAuthData: true,
-        message: 'Login or password is incorrect.',
+        message: 'Логин или пароль неправильный',
       });
   }
   const account = result.dataValues;
@@ -49,7 +49,7 @@ export const login = async (req, res, next) => {
       .status(401)
       .send({
         incorrectAuthData: true,
-        message: 'Login or password is incorrect',
+        message: 'Логин или пароль неправильный',
       });
   }
 };
@@ -74,7 +74,7 @@ export const refresh = (req, res) => {
       }
     });
   } catch(e) {
-    res.status(500).send({ message: 'Server error' })
+    res.status(500).send({ message: 'Упс, ошибка сервера. Попробуйте перезагрузить страницу' })
   }
 };
 

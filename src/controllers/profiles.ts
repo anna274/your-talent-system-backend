@@ -1,5 +1,6 @@
 import { findAll, findById, create, update, destroy } from 'services/profiles' 
 import { logger } from 'index';
+import { getErrorMessage } from 'helpers';
 
 export const getAll = async(req, res, next) => {
   try {
@@ -33,7 +34,7 @@ export const post = async(req, res, next) => {
     logger.info('POST profile', profile)
     res.send(profile);
   } catch(e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: getErrorMessage(e) });
     logger.error(e);
   }
 }
