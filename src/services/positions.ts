@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import {
   Position,
   JobFunction,
@@ -19,16 +20,23 @@ import {
 import { createDuties, deleteDutiesByPositionId } from 'services/duties';
 import { findProfilesByJobFunction, findById as findProfileById } from 'services/profiles';
 
-export const findAll = (): any => {
+export const findAll = (filters): any => {
+  const query = buildQuery(filters);
+  const jobFunctionsQuery = buildJobFunctionsQuery(filters);
+  const projectsQuery = buildProjectsQuery(filters);
+  const requirementsQuery = buildRequirementQuery(filters);
   return Position.findAll({
+    where: query,
     include: [
       {
         model: Project,
         attributes: ['id', 'name'],
+        where: projectsQuery
       },
       {
         model: JobFunction,
         attributes: ['id', 'name'],
+        where: jobFunctionsQuery,
       },
       {
         model: Duty,
@@ -40,6 +48,7 @@ export const findAll = (): any => {
       {
         model: Requirement,
         attributes: ['id'],
+        where: requirementsQuery,
         include: [
           {
             model: Level,
@@ -289,4 +298,53 @@ export const setProfile = async (positionId, profileId) => {
     { where: { id: positionId } }
   );
   return findOneWithProfile(positionId);
+};
+
+const buildQuery = (queryParams) => {
+  let query = {};
+  if (queryParams?.filters?.isOpen === 'true' || queryParams?.filters?.isOpen === 'false') {
+    query = {
+      ...query,
+      isOpen: queryParams?.filters?.isOpen === 'true'
+        ? { [Op.is]: true }
+        : { [Op.is]: false },
+    };
+  }
+  return query;
+};
+
+const buildJobFunctionsQuery = (queryParams) => {
+  let query = {};
+  if(queryParams?.filters?.jobFunctions) {
+    const jobFunctionsIds = JSON.parse(queryParams?.filters?.jobFunctions);
+    query = {
+      ...query,
+      id: { [Op.in]: jobFunctionsIds }
+    }
+  }
+  return query;
+};
+
+const buildProjectsQuery = (queryParams) => {
+  let query = {};
+  if(queryParams?.filters?.projects) {
+    const projectsIds = JSON.parse(queryParams?.filters?.projects);
+    query = {
+      ...query,
+      id: { [Op.in]: projectsIds }
+    }
+  }
+  return query;
+};
+
+const buildRequirementQuery = (queryParams) => {
+  let query = {};
+  if(queryParams?.filters?.technologies) {
+    const technologiesIds = JSON.parse(queryParams?.filters?.technologies);
+    query = {
+      ...query,
+      technologyId: { [Op.in]: technologiesIds }
+    }
+  }
+  return query;
 };

@@ -13,7 +13,7 @@ import { logger } from 'index';
 
 export const getAll = async (req, res, next) => {
   try {
-    const positions = await findAll();
+    const positions = await findAll(req.query || {});
     logger.info('GET all positions', positions);
     res.send(positions);
   } catch (e) {
