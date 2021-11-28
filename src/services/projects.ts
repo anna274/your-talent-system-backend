@@ -3,6 +3,7 @@ import { Project, Scope, Technology, Position } from 'models/main';
 
 export const findAll = (filters): any => {
   const query = buildQuery(filters);
+  const scopesQuery = buildScopesQuery(filters);
   return Project.findAll({
     where: query,
     include: [
@@ -12,6 +13,7 @@ export const findAll = (filters): any => {
         through: {
           attributes: [],
         },
+        where: scopesQuery
       },
       {
         model: Technology,
@@ -89,13 +91,31 @@ export const destroy = async (id: string) => {
 
 const buildQuery = (queryParams) => {
   let query = {};
-  if (queryParams?.filters?.isOpen) {
+  if (queryParams?.filters?.isOpen === 'true' || queryParams?.filters?.isOpen === 'false') {
     query = {
       ...query,
-      endDate: queryParams?.filters?.isOpen
-        ? { [Op.not]: null }
-        : { [Op.is]: null },
+      endDate: queryParams?.filters?.isOpen === 'true'
+        ? { [Op.is]: null }
+        : { [Op.not]: null },
     };
+  }
+  if(queryParams?.filters?.name) {
+    query = {
+      ...query,
+      name: { [Op.like]: `%${queryParams?.filters?.name}%` }
+    }
+  }
+  return query;
+};
+
+const buildScopesQuery = (queryParams) => {
+  let query = {};
+  if(queryParams?.filters?.scopes) {
+    const scopeIds = JSON.parse(queryParams?.filters?.scopes);
+    query = {
+      ...query,
+      id: { [Op.in]: scopeIds }
+    }
   }
   return query;
 };

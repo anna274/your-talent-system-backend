@@ -126,7 +126,6 @@ export const findOneWithProfile = async (id) => {
     return position;
   }
   const { dataValues: profile } = await findProfileById(position.profileId);
-  console.log('position', position)
   return { ...position, profile };
 }
 
