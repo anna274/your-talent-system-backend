@@ -13,7 +13,7 @@ const refershOpts : jwt.StrategyOptions = {
   secretOrKey: keys.refreshSecretOrKey
 };
 
-const passportConfig = passport => {
+export const passportConfig = passport => {
   passport.use(
     AUTH_STRATEGY,
     new jwt.Strategy(opts, async (jwt_payload, done) => {
@@ -36,5 +36,3 @@ const passportConfig = passport => {
     })
   );
 };
-
-export { passportConfig };

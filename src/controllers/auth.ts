@@ -1,80 +1,65 @@
-import * as jwt from 'jsonwebtoken';
-import { keys } from 'config';
 import { redisClient } from 'index';
-import { TOKEN_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN } from 'consts';
-import { isMatch } from 'helpers';
+import { isMatch, generateRefreshToken, generateToken } from 'helpers';
 import { getAccountByLogin } from 'services';
-
-function generateToken({ id, role }) {
-  return jwt.sign({ id, role }, keys.secretOrKey, {
-    expiresIn: TOKEN_EXPIRES_IN,
-  });
-}
-
-const generateRefreshToken = ({ id, role }) => {
-  return jwt.sign({ id, role }, keys.refreshSecretOrKey, {
-    expiresIn: REFRESH_TOKEN_EXPIRES_IN,
-  });
-};
 
 export const login = async (req, res, next) => {
   const { login, password } = req.body;
   if (!login || !password) {
-    return res
-      .status(400)
-      .json({ message: 'Bad request. Login and password are requested.' });
+    res.status(400).send({ message: 'Логин и пароль обязательны' });
+    return;
   }
   const result = await getAccountByLogin(login);
   if (!result) {
-    return res
-      .status(401)
-      .send({
-        incorrectAuthData: true,
-        message: 'Логин или пароль неправильный',
-      });
+    res.status(401).send({
+      incorrectAuthData: true,
+      message: 'Логин или пароль неправильный',
+    });
+    return;
   }
   const account = result.dataValues;
   if (await isMatch(password, account.password)) {
     const token = generateToken(account);
     const refreshToken = generateRefreshToken(account);
     redisClient.set(account.id, refreshToken);
-    res.status(200).json({
+    res.status(200).send({
       success: true,
       token: 'Bearer ' + token,
       refreshToken: refreshToken,
       account,
     });
   } else {
-    res
-      .status(401)
-      .send({
-        incorrectAuthData: true,
-        message: 'Логин или пароль неправильный',
-      });
+    res.status(401).send({
+      incorrectAuthData: true,
+      message: 'Логин или пароль неправильный',
+    });
   }
 };
 
 export const refresh = (req, res) => {
   try {
     const { refreshToken, account } = req.body;
-    if(!account || !refreshToken) {
-      return res.status(400).send({ message: "Bad request" });
+    if (!account || !refreshToken) {
+      return res.status(400).send({ message: 'Отсутствуют данные о аккаунте или токене' });
     }
     redisClient.get(account.id, (err, value) => {
-      if(value === refreshToken) {
+      if (value === refreshToken) {
         const token = generateToken(account);
         const newRefreshToken = generateRefreshToken(account);
         redisClient.set(account.id, newRefreshToken);
         res.status(200).json({
-          token: "Bearer " + token,
+          token: 'Bearer ' + token,
           refreshToken: newRefreshToken,
         });
       } else {
-        res.status(403).send({ message: 'No refresh token' })
+        res.status(403).send({ message: 'No refresh token' });
       }
     });
-  } catch(e) {
-    res.status(500).send({ message: 'Упс, ошибка сервера. Попробуйте перезагрузить страницу' })
+  } catch (e) {
+    res
+      .status(500)
+      .send({
+        message: 'Упс, ошибка сервера. Попробуйте перезагрузить страницу',
+      });
   }
 };
 

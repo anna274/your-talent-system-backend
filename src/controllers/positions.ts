@@ -17,7 +17,7 @@ export const getAll = async (req, res, next) => {
     logger.info('GET all positions', positions);
     res.send(positions);
   } catch (e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 };
@@ -25,13 +25,15 @@ export const getAll = async (req, res, next) => {
 export const getById = async (req, res, next) => {
   try {
     const { positionId } = req.params;
-    const result = await findOneWithProfile(positionId);
-    //@ts-ignore
-    const position = result;
+    const position = await findOneWithProfile(positionId);
     logger.info('GET position by id', position);
-    res.send(position);
+    if(!position) {
+      res.status(404).send({ message: 'Позиция не найдена' });
+    } else {
+      res.send(position);
+    }
   } catch (e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 };
@@ -39,11 +41,15 @@ export const getById = async (req, res, next) => {
 export const post = async (req, res, next) => {
   try {
     const { positionData } = req.body;
+    if(!positionData) {
+      res.status(400).send({ message: 'Данные о позиции отсутствуют' });
+      return;
+    }
     const position = await create(positionData);
     logger.info('POST position', position);
     res.send(position);
   } catch (e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 };
@@ -51,11 +57,15 @@ export const post = async (req, res, next) => {
 export const put = async (req, res, next) => {
   try {
     const { positionData } = req.body;
+    if(!positionData) {
+      res.status(400).send({ message: 'Данные о позиции отсутствуют' });
+      return;
+    }
     const position = await update(positionData);
     logger.info('update position', position);
     res.send(position);
   } catch (e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 };
@@ -67,7 +77,7 @@ export const deleteOne = async (req, res, next) => {
     logger.info('delete position ', positionId);
     res.send();
   } catch (e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 };
@@ -79,7 +89,7 @@ export const getCandidates = async (req, res, next) => {
     logger.info('GET candidates', candidates);
     res.send(candidates);
   } catch (e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 };
@@ -88,11 +98,15 @@ export const addCandidate = async (req, res, next) => {
   try {
     const { positionId, profileId } = req.params;
     const { koef } = req.body;
+    if(!koef) {
+      res.status(400).send({ message: 'Данные о коэфициенте соответсвия отсутствуют' });
+      return;
+    }
     const updatedPosition = await addToCandidates(positionId, profileId, koef);
     logger.info('Add to candidates', updatedPosition);
     res.send(updatedPosition);
   } catch (e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 };
@@ -104,7 +118,7 @@ export const removeCandidate = async (req, res, next) => {
     logger.info('delete candidate', updatedPosition);
     res.send(updatedPosition);
   } catch (e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 };
@@ -116,7 +130,7 @@ export const setSpecialist = async (req, res, next) => {
     logger.info('set candidate', updatedPosition);
     res.send(updatedPosition);
   } catch (e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 };

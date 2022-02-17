@@ -1,6 +1,5 @@
 import { findAll, findById, create, update, destroy } from 'services/profiles' 
 import { logger } from 'index';
-import { getErrorMessage } from 'helpers';
 
 export const getAll = async(req, res, next) => {
   try {
@@ -8,7 +7,7 @@ export const getAll = async(req, res, next) => {
     logger.info('GET all profiles', profiles)
     res.send(profiles);
   } catch(e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 }
@@ -17,12 +16,15 @@ export const getById = async(req, res, next) => {
   try {
     const { profileId } = req.params;
     const result = await findById(profileId);
-    //@ts-ignore
     const profile = result.dataValues;
+    if(!profile) {
+      res.status(404).send({ message: 'Профиль не найден' });
+    } else {
+      res.send(profile);
+    }
     logger.info('GET profile by id', profile)
-    res.send(profile);
   } catch(e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 }
@@ -30,11 +32,15 @@ export const getById = async(req, res, next) => {
 export const post = async(req, res, next) => {
   try {
     const { accountData, profileData } = req.body;
+    if(!profileData || !accountData) {
+      res.status(400).send({ message: 'Данные об аккаунте или профиле отсутствуют' });
+      return;
+    }
     const profile = await create(accountData, profileData);
     logger.info('POST profile', profile)
     res.send(profile);
   } catch(e) {
-    res.status(500).send({ message: getErrorMessage(e) });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 }
@@ -42,11 +48,15 @@ export const post = async(req, res, next) => {
 export const put = async(req, res, next) => {
   try {
     const { profileData } = req.body;
+    if(!profileData) {
+      res.status(400).send({ message: 'Данные о профиле отсутствуют' });
+      return;
+    }
     const profile = await update(profileData);
     logger.info('update profile', profile)
     res.send(profile);
   } catch(e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 }
@@ -58,7 +68,7 @@ export const deleteOne = async(req, res, next) => {
     logger.info('delete profile')
     res.send();
   } catch(e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 }
