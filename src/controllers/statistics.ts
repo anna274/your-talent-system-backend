@@ -1,4 +1,4 @@
-import { findAll, create } from 'services/statistics' 
+import { findAll, findById, create } from 'services/statistics' 
 import { logger } from 'index';
 
 export const getAll = async(req, res, next) => {
@@ -8,6 +8,24 @@ export const getAll = async(req, res, next) => {
     res.send(result);
   } catch(e) {
     res.status(500).send({ message: 'Server error' });
+    logger.error(e);
+  }
+}
+
+export const getById = async(req, res, next) => {
+  try {
+    const { statisticsId } = req.params;
+    const result = await findById(statisticsId);
+    //@ts-ignore
+    const statistics = result.dataValues;
+    if(!statistics) {
+      res.status(404).send({ message: 'ОТчёт не найден' });
+    } else {
+      res.send(statistics);
+    }
+    logger.info('GET statistics by id', statistics)
+  } catch(e) {
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 }
