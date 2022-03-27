@@ -10,13 +10,14 @@ import { default as levelsRouter } from 'routes/levels';
 import { default as profilesRouter } from 'routes/profiles';
 import { default as prioritiesRouter } from 'routes/priorities';
 import { default as positionsRouter } from 'routes/positions';
+import { default as statisticsRouter } from 'routes/statistics';
+import { default as statisticsTypesRouter } from 'routes/statisticsTypes';
 import { passport } from 'index';
 import { AUTH_STRATEGY } from 'consts';
 
 const router = express.Router();
 
 router.use('/auth', authRouter);
-router.use('/positions', positionsRouter);
 router.use(
   '/accounts',
   passport.authenticate(AUTH_STRATEGY, { session: false }),
@@ -62,10 +63,20 @@ router.use(
   passport.authenticate(AUTH_STRATEGY, { session: false }),
   prioritiesRouter
 );
-// router.use(
-//   '/positions',
-//   passport.authenticate(AUTH_STRATEGY, { session: false }),
-//   positionsRouter
-// );
+router.use(
+  '/positions',
+  passport.authenticate(AUTH_STRATEGY, { session: false }),
+  positionsRouter
+);
+router.use(
+  '/statistics',
+  passport.authenticate(AUTH_STRATEGY, { session: false }),
+  statisticsRouter
+);
+router.use(
+  '/statistics_types',
+  passport.authenticate(AUTH_STRATEGY, { session: false }),
+  statisticsTypesRouter
+);
 
 export default router;

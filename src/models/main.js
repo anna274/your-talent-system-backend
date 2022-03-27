@@ -273,24 +273,32 @@ Technology.hasMany(Skill, { onDelete: 'SET NULL', hooks: true });
 Skill.belongsTo(Profile);
 Profile.hasMany(Skill, { onDelete: 'cascade', hooks: true });
 
-const Priority = db.define('priority', {
-  ...defaultFields,
-  value: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    unique: true,
+const Priority = db.define(
+  'priority',
+  {
+    ...defaultFields,
+    value: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      unique: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    deviation: {
+      type: DataTypes.INTEGER,
+    },
   },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  deviation: {
-    type: DataTypes.INTEGER,
-  }
-}, { timestamps: false });
+  { timestamps: false }
+);
 
-const Requirement = db.define('requirement', { ...defaultFields }, { timestamps: false });
+const Requirement = db.define(
+  'requirement',
+  { ...defaultFields },
+  { timestamps: false }
+);
 
 Requirement.belongsTo(Priority);
 Priority.hasMany(Requirement, { onDelete: 'SET NULL', hooks: true });
@@ -321,7 +329,7 @@ const Position = db.define('position', {
   },
   closeDate: {
     type: DataTypes.DATE,
-  }
+  },
 });
 
 Position.belongsTo(JobFunction);
@@ -353,6 +361,47 @@ Profile.belongsToMany(Position, { through: Candidate });
 Position.belongsTo(Profile);
 Profile.hasOne(Position);
 
+const StatisticsType = db.define(
+  'statistics_type',
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: Sequelize.fn('uuid_generate_v4'),
+      primaryKey: true,
+      allowNull: false,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+  },
+  { timestamps: false }
+);
+
+const StatisticsInfo = db.define('statistics_info', {
+  ...defaultFields,
+  label: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  isPublic: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+  },
+  additionalInfo: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  data: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
+});
+
+StatisticsInfo.belongsTo(StatisticsType);
+StatisticsType.hasMany(StatisticsInfo, { onDelete: 'SET NULL', hooks: true });
+
 export {
   Account,
   Role,
@@ -372,4 +421,8 @@ export {
   Position,
   Candidate,
   Duty,
+  StatisticsType,
+  TechnologiesStatistics,
+  SkillsStatistics,
+  StatisticsInfo,
 };

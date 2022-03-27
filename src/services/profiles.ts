@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import {
   Profile,
   Department,
@@ -10,16 +11,20 @@ import {
 import { createAccount } from 'services/accounts';
 import { createSkills, deleteSkillsByProfileId } from 'services/skills';
 
-export const findAll = (): any => {
+export const findAll = (filters = {}): any => {
+  const jobFunctionsQuery = buildJobFunctionsQuery(filters);
+  const departmentsQuery = buildDepartmentsQuery(filters);
   return Profile.findAll({
     include: [
       {
         model: Department,
         attributes: ['id', 'name'],
+        where: departmentsQuery,
       },
       {
         model: JobFunction,
         attributes: ['id', 'name'],
+        where: jobFunctionsQuery,
       },
       {
         model: Skill,
@@ -148,3 +153,28 @@ export const findProfilesByJobFunction = async (jobFunctionId: string) => {
     ],
   });
 };
+
+const buildJobFunctionsQuery = (queryParams) => {
+  let query = {};
+  if(queryParams?.filters?.jobFunctions) {
+    const jobFunctionsIds = JSON.parse(queryParams?.filters?.jobFunctions);
+    query = {
+      ...query,
+      id: { [Op.in]: jobFunctionsIds }
+    }
+  }
+  return query;
+};
+
+const buildDepartmentsQuery = (queryParams) => {
+  let query = {};
+  if(queryParams?.filters?.departments) {
+    const departmentsIds = JSON.parse(queryParams?.filters?.departments);
+    query = {
+      ...query,
+      id: { [Op.in]: departmentsIds }
+    }
+  }
+  return query;
+};
+

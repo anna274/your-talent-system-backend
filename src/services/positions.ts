@@ -18,8 +18,16 @@ import {
   deleteRequirementsByPositionId,
 } from 'services/requirement';
 import { createDuties, deleteDutiesByPositionId } from 'services/duties';
-import { findProfilesByJobFunction, findById as findProfileById } from 'services/profiles';
-import {calculateThresholds, calculateMaxInterval, calculateInterval, sortCandidatesByKoef } from 'helpers/positions'
+import {
+  findProfilesByJobFunction,
+  findById as findProfileById,
+} from 'services/profiles';
+import {
+  calculateThresholds,
+  calculateMaxInterval,
+  calculateInterval,
+  sortCandidatesByKoef,
+} from 'helpers/positions';
 
 export const findAll = (filters): any => {
   const query = buildQuery(filters);
@@ -32,7 +40,7 @@ export const findAll = (filters): any => {
       {
         model: Project,
         attributes: ['id', 'name'],
-        where: projectsQuery
+        where: projectsQuery,
       },
       {
         model: JobFunction,
@@ -66,6 +74,7 @@ export const findAll = (filters): any => {
         ],
       },
     ],
+    order: [['updatedAt', 'DESC']]
   });
 };
 
@@ -132,12 +141,12 @@ export const findById = (id: string): any => {
 
 export const findOneWithProfile = async (id) => {
   const { dataValues: position } = await findById(id);
-  if(!position.profileId) {
+  if (!position.profileId) {
     return position;
   }
   const { dataValues: profile } = await findProfileById(position.profileId);
   return { ...position, profile };
-}
+};
 
 export const create = async (positionData) => {
   const { requirements, project, job_function, ...restInfo } = positionData;
@@ -202,7 +211,7 @@ export const generateCandidates = async (positionId: string) => {
     position.jobFunctionId
   );
   const requirementsThresholds = calculateThresholds(position);
-  
+
   let maxInterval = calculateMaxInterval(requirementsThresholds);
   const intervals = possibleCandidates.map((possibleCandidate) =>
     calculateInterval(requirementsThresholds, possibleCandidate)
@@ -237,12 +246,27 @@ export const setProfile = async (positionId, profileId) => {
 
 const buildQuery = (queryParams) => {
   let query = {};
-  if (queryParams?.filters?.isOpen === 'true' || queryParams?.filters?.isOpen === 'false') {
+  if (
+    queryParams?.filters?.isOpen === 'true' ||
+    queryParams?.filters?.isOpen === 'false'
+  ) {
     query = {
       ...query,
-      isOpen: queryParams?.filters?.isOpen === 'true'
-        ? { [Op.is]: true }
-        : { [Op.is]: false },
+      isOpen:
+        queryParams?.filters?.isOpen === 'true'
+          ? { [Op.is]: true }
+          : { [Op.is]: false },
+    };
+  }
+  if (queryParams?.filters?.applicationDate) {
+    query = {
+      ...query,
+      applicationDate: {
+        [Op.between]: [
+          queryParams?.filters?.applicationDate.from,
+          queryParams?.filters?.applicationDate.to,
+        ],
+      },
     };
   }
   return query;
@@ -250,36 +274,36 @@ const buildQuery = (queryParams) => {
 
 const buildJobFunctionsQuery = (queryParams) => {
   let query = {};
-  if(queryParams?.filters?.jobFunctions) {
+  if (queryParams?.filters?.jobFunctions) {
     const jobFunctionsIds = JSON.parse(queryParams?.filters?.jobFunctions);
     query = {
       ...query,
-      id: { [Op.in]: jobFunctionsIds }
-    }
+      id: { [Op.in]: jobFunctionsIds },
+    };
   }
   return query;
 };
 
 const buildProjectsQuery = (queryParams) => {
   let query = {};
-  if(queryParams?.filters?.projects) {
+  if (queryParams?.filters?.projects) {
     const projectsIds = JSON.parse(queryParams?.filters?.projects);
     query = {
       ...query,
-      id: { [Op.in]: projectsIds }
-    }
+      id: { [Op.in]: projectsIds },
+    };
   }
   return query;
 };
 
 const buildRequirementQuery = (queryParams) => {
   let query = {};
-  if(queryParams?.filters?.technologies) {
+  if (queryParams?.filters?.technologies) {
     const technologiesIds = JSON.parse(queryParams?.filters?.technologies);
     query = {
       ...query,
-      technologyId: { [Op.in]: technologiesIds }
-    }
+      technologyId: { [Op.in]: technologiesIds },
+    };
   }
   return query;
 };
