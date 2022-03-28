@@ -7,3 +7,8 @@ export { TOKEN_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN, AUTH_STRATEGY, REFRESH_STRA
 
 export const INCORRECT_PASSWORD_ERROR = "Current password is incorrect";
 export const SERVER_ERROR = "Server error";
+
+export const STATISTICS_TYPES = {
+  TECHNOLOGIES_STATS: 'Востребованные технологии',
+  SKILLS_STATS: 'Состояние компетенций',
+}

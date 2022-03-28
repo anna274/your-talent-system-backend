@@ -1,4 +1,4 @@
-import { findAll, findById, create } from 'services/statistics' 
+import { findAll, findById, create, update, destroy } from 'services/statistics' 
 import { logger } from 'index';
 
 export const getAll = async(req, res, next) => {
@@ -45,3 +45,31 @@ export const post = async (req, res, next) => {
     logger.error(e);
   }
 };
+
+export const put = async(req, res, next) => {
+  try {
+    const { statisticsData } = req.body;
+    if(!statisticsData) {
+      res.status(400).send({ message: 'Данные о статистике отсутствуют' });
+      return;
+    }
+    const statistics = await update(statisticsData);
+    logger.info('update statistics', statistics)
+    res.send(statistics);
+  } catch(e) {
+    res.status(500).send({ message: e.message });
+    logger.error(e);
+  }
+}
+
+export const deleteOne = async(req, res, next) => {
+  try {
+    const { statisticsId } = req.params;
+    await destroy(statisticsId);
+    logger.info('delete statistics')
+    res.send();
+  } catch(e) {
+    res.status(500).send({ message: e.message });
+    logger.error(e);
+  }
+}
