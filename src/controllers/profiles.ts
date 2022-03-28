@@ -1,4 +1,4 @@
-import { findAll, findById, create, update, destroy } from 'services/profiles' 
+import { findAll, findById, findByAccountId, create, update, destroy } from 'services/profiles' 
 import { logger } from 'index';
 
 export const getAll = async(req, res, next) => {
@@ -17,6 +17,23 @@ export const getById = async(req, res, next) => {
     const { profileId } = req.params;
     const result = await findById(profileId);
     const profile = result.dataValues;
+    if(!profile) {
+      res.status(404).send({ message: 'Профиль не найден' });
+    } else {
+      res.send(profile);
+    }
+    logger.info('GET profile by id', profile)
+  } catch(e) {
+    res.status(500).send({ message: e.message });
+    logger.error(e);
+  }
+}
+
+export const getByAccountId = async(req, res, next) => {
+  try {
+    const { accountId } = req.params;
+    const result = await findByAccountId(accountId);
+    const profile = result?.dataValues;
     if(!profile) {
       res.status(404).send({ message: 'Профиль не найден' });
     } else {

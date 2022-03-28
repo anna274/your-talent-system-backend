@@ -3,7 +3,7 @@ import { logger } from 'index';
 
 export const getAll = async(req, res, next) => {
   try {
-    const result = await findAll();
+    const result = await findAll(req.query || {});
     logger.info('GET all statistics', result)
     res.send(result);
   } catch(e) {

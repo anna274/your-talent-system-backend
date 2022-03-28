@@ -74,6 +74,36 @@ export const findById = (id: string): any => {
   });
 };
 
+export const findByAccountId = (accountId: string): any => {
+  return Profile.findOne({
+    where: { accountId },
+    include: [
+      {
+        model: Department,
+        attributes: ['id', 'name'],
+      },
+      {
+        model: JobFunction,
+        attributes: ['id', 'name'],
+      },
+      {
+        model: Skill,
+        attributes: ['id'],
+        include: [
+          {
+            model: Technology,
+            attributes: ['id', 'name'],
+          },
+          {
+            model: Level,
+            attributes: ['id', 'value'],
+          },
+        ],
+      },
+    ],
+  });
+};
+
 export const create = async (accountData, profileData) => {
   const { login, password } = accountData;
   const profileAccount = await createAccount(login, password);

@@ -1,12 +1,18 @@
 import { StatisticsInfo, StatisticsType } from 'models/main';
+import { findById as findAccountById } from 'services/accounts';
 import { findAll as findAllProfiles } from 'services/profiles';
 import { findAll as findAllPositions } from 'services/positions';
 import { findAll as findAllTechnologies } from 'services/technologies';
 import { STATISTICS_TYPES } from 'consts';
 import { formatDate } from 'helpers';
 
-export const findAll = (): any => {
+export const findAll = async (query) => {
+  const { userId } = query;
+  const user = await findAccountById(userId);
+  console.log('user', user)
+  const filter = user.dataValues.roles.find(({ name }) => name === 'admin') ? {} : {isPublic: true};
   return StatisticsInfo.findAll({
+    where: filter,
     order: [['createdAt', 'DESC']],
     include: [{ model: StatisticsType, attributes: ['id', 'name'] }],
   });
