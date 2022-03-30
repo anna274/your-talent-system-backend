@@ -8,6 +8,7 @@ import {
   removeFromCandidates,
   setProfile,
   findOneWithProfile,
+  updateStatus,
 } from 'services/positions';
 import { logger } from 'index';
 
@@ -63,6 +64,22 @@ export const put = async (req, res, next) => {
     }
     const position = await update(positionData);
     logger.info('update position', position);
+    res.send(position);
+  } catch (e) {
+    res.status(500).send({ message: e.message });
+    logger.error(e);
+  }
+};
+
+export const patchStatus = async (req, res, next) => {
+  try {
+    const { positionData } = req.body;
+    if(!positionData) {
+      res.status(400).send({ message: 'Данные о позиции отсутствуют' });
+      return;
+    }
+    const position = await updateStatus(positionData);
+    logger.info('update position status', position);
     res.send(position);
   } catch (e) {
     res.status(500).send({ message: e.message });

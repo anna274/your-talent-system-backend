@@ -7,6 +7,9 @@ import {
   Skill,
   Technology,
   Level,
+  Position,
+  Project,
+  PositionStatus
 } from 'models/main';
 import { createAccount } from 'services/accounts';
 import { createSkills, deleteSkillsByProfileId } from 'services/skills';
@@ -39,7 +42,7 @@ export const findAll = (filters = {}): any => {
             attributes: ['id', 'value'],
           },
         ],
-      },
+      }
     ],
   });
 };
@@ -70,6 +73,25 @@ export const findById = (id: string): any => {
           },
         ],
       },
+      {
+        model: Position,
+        attributes: ['id'],
+        include: [
+          {
+            model: Project,
+            attributes: ['id', 'name'],
+          },
+          {
+            model: JobFunction,
+            attributes: ['id', 'name'],
+          },
+          {
+            model: PositionStatus,
+            attributes: ['id', 'value'],
+          },
+        ],
+      }
+      
     ],
   });
 };
@@ -100,6 +122,24 @@ export const findByAccountId = (accountId: string): any => {
           },
         ],
       },
+      {
+        model: Position,
+        attributes: ['id'],
+        include: [
+          {
+            model: Project,
+            attributes: ['id', 'name'],
+          },
+          {
+            model: JobFunction,
+            attributes: ['id', 'name'],
+          },
+          {
+            model: PositionStatus,
+            attributes: ['id', 'value'],
+          },
+        ],
+      }
     ],
   });
 };

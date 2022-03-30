@@ -14,7 +14,6 @@ const mockedPosition = {
     { id: 'fc463627-f9f4-4914-ae16-1029a0b06688', text: 'Написание тестов' },
   ],
   id: '2b6df402-1c85-4d0a-a3f4-737671e61a6c',
-  isOpen: false,
   job_function: {
     id: '64f4957c-217f-475a-83fd-58d7b4e091fe',
     name: 'Программист',

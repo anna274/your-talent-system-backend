@@ -12,6 +12,7 @@ import { default as prioritiesRouter } from 'routes/priorities';
 import { default as positionsRouter } from 'routes/positions';
 import { default as statisticsRouter } from 'routes/statistics';
 import { default as statisticsTypesRouter } from 'routes/statisticsTypes';
+import { default as positionStatusesRouter } from 'routes/positionStatuses';
 import { passport } from 'index';
 import { AUTH_STRATEGY } from 'consts';
 
@@ -77,6 +78,11 @@ router.use(
   '/statistics_types',
   passport.authenticate(AUTH_STRATEGY, { session: false }),
   statisticsTypesRouter
+);
+router.use(
+  '/position_statuses',
+  passport.authenticate(AUTH_STRATEGY, { session: false }),
+  positionStatusesRouter
 );
 
 export default router;

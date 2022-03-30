@@ -12,6 +12,7 @@ import {
   Candidate,
   Skill,
   Department,
+  PositionStatus,
 } from 'models/main';
 import {
   createRequirements,
@@ -28,10 +29,12 @@ import {
   calculateInterval,
   sortCandidatesByKoef,
 } from 'helpers/positions';
+import { findByValue as findPositionStatusByValue } from 'services/positionStatus';
 
 export const findAll = (filters): any => {
   const query = buildQuery(filters);
   const jobFunctionsQuery = buildJobFunctionsQuery(filters);
+  const positionStatusesQuery = buildPositionStatusesQuery(filters);
   const projectsQuery = buildProjectsQuery(filters);
   const requirementsQuery = buildRequirementQuery(filters);
   return Position.findAll({
@@ -72,6 +75,11 @@ export const findAll = (filters): any => {
             attributes: ['id', 'value', 'name'],
           },
         ],
+      },
+      {
+        model: PositionStatus,
+        attributes: ['id', 'label', "value"],
+        where: positionStatusesQuery,
       },
     ],
     order: [['updatedAt', 'DESC']]
@@ -135,6 +143,10 @@ export const findById = (id: string): any => {
           },
         ],
       },
+      {
+        model: PositionStatus,
+        attributes: ['id', 'label', "value"]
+      },
     ],
   });
 };
@@ -150,6 +162,7 @@ export const findOneWithProfile = async (id) => {
 
 export const create = async (positionData) => {
   const { requirements, project, job_function, ...restInfo } = positionData;
+  const {dataValues: openedPositionStatus} = await findPositionStatusByValue("opened");
   const changedRequirements = requirements.map(
     ({ technology, level, priority }) => ({
       technologyId: technology.id,
@@ -164,6 +177,7 @@ export const create = async (positionData) => {
       projectId: project.id,
       jobFunctionId: job_function.id,
       requirements: changedRequirements,
+      positionStatusId: openedPositionStatus.id,
     },
     { include: [Requirement, Duty] }
     //@ts-ignore
@@ -195,6 +209,18 @@ export const update = async (positionData) => {
         ...restInfo,
         projectId: project.id,
         jobFunctionId: job_function.id,
+      });
+    })
+    .then(() => findOneWithProfile(id));
+};
+
+export const updateStatus = async (positionData) => {
+  const { statusValue, id } = positionData;
+  const { dataValues: positionStatus} = await findPositionStatusByValue(statusValue);
+  return findById(id)
+    .then(async (position) => {
+      await position.update({
+        positionStatusId: positionStatus.id
       });
     })
     .then(() => findOneWithProfile(id));
@@ -236,9 +262,11 @@ export const removeFromCandidates = async (positionId, profileId) => {
 };
 
 export const setProfile = async (positionId, profileId) => {
+  const {dataValues: positionStatus} = await findPositionStatusByValue("active");
+
   await Candidate.destroy({ where: { positionId } });
   await Position.update(
-    { profileId, isOpen: false, closeDate: new Date() },
+    { profileId, positionStatusId: positionStatus.id, closeDate: new Date() },
     { where: { id: positionId } }
   );
   return findOneWithProfile(positionId);
@@ -246,18 +274,6 @@ export const setProfile = async (positionId, profileId) => {
 
 const buildQuery = (queryParams) => {
   let query = {};
-  if (
-    queryParams?.filters?.isOpen === 'true' ||
-    queryParams?.filters?.isOpen === 'false'
-  ) {
-    query = {
-      ...query,
-      isOpen:
-        queryParams?.filters?.isOpen === 'true'
-          ? { [Op.is]: true }
-          : { [Op.is]: false },
-    };
-  }
   if (queryParams?.filters?.applicationDate) {
     query = {
       ...query,
@@ -291,6 +307,18 @@ const buildProjectsQuery = (queryParams) => {
     query = {
       ...query,
       id: { [Op.in]: projectsIds },
+    };
+  }
+  return query;
+};
+
+const buildPositionStatusesQuery = (queryParams) => {
+  let query = {};
+  if (queryParams?.filters?.positionStatuses) {
+    const positionStatusesIds = JSON.parse(queryParams?.filters?.positionStatuses);
+    query = {
+      ...query,
+      id: { [Op.in]: positionStatusesIds },
     };
   }
   return query;

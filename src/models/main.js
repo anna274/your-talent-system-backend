@@ -317,12 +317,23 @@ const Duty = db.define('duty', {
   },
 });
 
+const PositionStatus = db.define('position_status', {
+  ...defaultFields,
+  value: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  ...defaultFields,
+  label: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+});
+
 const Position = db.define('position', {
   ...defaultFields,
-  isOpen: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
-  },
   applicationDate: {
     type: DataTypes.DATE,
     allowNull: false,
@@ -330,7 +341,13 @@ const Position = db.define('position', {
   closeDate: {
     type: DataTypes.DATE,
   },
+  deactivationDate: {
+    type: DataTypes.DATE,
+  }
 });
+
+Position.belongsTo(PositionStatus);
+PositionStatus.hasMany(Position, { onDelete: 'SET NULL', hooks: true });
 
 Position.belongsTo(JobFunction);
 JobFunction.hasMany(Position, { onDelete: 'SET NULL', hooks: true });
@@ -358,8 +375,8 @@ const Candidate = db.define(
 Position.belongsToMany(Profile, { through: Candidate });
 Profile.belongsToMany(Position, { through: Candidate });
 
-Position.belongsTo(Profile);
-Profile.hasOne(Position);
+Position.belongsTo(Profile,  { onDelete: 'SET NULL', hooks: true });
+Profile.hasMany(Position,  { onDelete: 'SET NULL', hooks: true });
 
 const StatisticsType = db.define(
   'statistics_type',
@@ -425,4 +442,5 @@ export {
   TechnologiesStatistics,
   SkillsStatistics,
   StatisticsInfo,
+  PositionStatus,
 };
