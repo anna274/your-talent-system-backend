@@ -1,13 +1,31 @@
-import { findAll, create, update, destroy } from 'services/jobFunctions' 
+import { findAll, findById, create, update, destroy } from 'services/jobFunctions' 
 import { logger } from 'index';
 
 export const getAll = async(req, res, next) => {
   try {
-    const result = await findAll();
+    const result = await findAll(req.query || {});
     logger.info('GET all jobFunctions', result)
     res.send(result);
   } catch(e) {
     res.status(500).send({ message: 'Server error' });
+    logger.error(e);
+  }
+}
+
+export const getById = async(req, res, next) => {
+  try {
+    const { jobFunctionId } = req.params;
+    const result = await findById(jobFunctionId);
+    //@ts-ignore
+    const jobFunction = result.dataValues;
+    if(!jobFunction) {
+      res.status(404).send({ message: 'Департамент не найден' });
+    } else {
+      res.send(jobFunction);
+    }
+    logger.info('GET jobFunction by id', jobFunction)
+  } catch(e) {
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 }

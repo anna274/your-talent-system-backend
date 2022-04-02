@@ -1,13 +1,31 @@
-import { findAll, create, update, destroy } from 'services/technologies' 
+import { findAll, findById, create, update, destroy } from 'services/technologies' 
 import { logger } from 'index';
 
 export const getAll = async(req, res, next) => {
   try {
-    const result = await findAll();
+    const result = await findAll(req.query || {});
     logger.info('GET all technologies', result)
     res.send(result);
   } catch(e) {
     res.status(500).send({ message: 'Server error' });
+    logger.error(e);
+  }
+}
+
+export const getById = async(req, res, next) => {
+  try {
+    const { technologyId } = req.params;
+    const result = await findById(technologyId);
+    //@ts-ignore
+    const technology = result.dataValues;
+    if(!technology) {
+      res.status(404).send({ message: 'Технология не найдена' });
+    } else {
+      res.send(technology);
+    }
+    logger.info('GET technology by id', technology)
+  } catch(e) {
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 }

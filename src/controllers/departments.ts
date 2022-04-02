@@ -1,13 +1,31 @@
-import { findAll, create, update, destroy } from 'services/departments' 
+import { findAll, findById, create, update, destroy } from 'services/departments' 
 import { logger } from 'index';
 
 export const getAll = async(req, res, next) => {
   try {
-    const result = await findAll();
+    const result = await findAll(req.query || {});
     logger.info('GET all departments', result)
     res.send(result);
   } catch(e) {
     res.status(500).send({ message: 'Server error' });
+    logger.error(e);
+  }
+}
+
+export const getById = async(req, res, next) => {
+  try {
+    const { departmentId } = req.params;
+    const result = await findById(departmentId);
+    //@ts-ignore
+    const department = result.dataValues;
+    if(!department) {
+      res.status(404).send({ message: 'Департамент не найден' });
+    } else {
+      res.send(department);
+    }
+    logger.info('GET department by id', department)
+  } catch(e) {
+    res.status(500).send({ message: e.message });
     logger.error(e);
   }
 }

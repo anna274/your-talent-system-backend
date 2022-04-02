@@ -3,7 +3,11 @@ import { Op } from 'sequelize';
 
 export const findAll = (filters = {}): any => {
   const query = buildQuery(filters);
-  return Department.findAll({ where: query, attributes: ["name", "id"] });
+  return Department.findAll({ where: query, attributes: ["name", "id"], order: [['updatedAt', 'DESC']], });
+};
+
+export const findById = (id: string): any => {
+  return Department.findOne({ where: {id}, attributes: ["name", "id"] });
 };
 
 export const create = async (departmentData) => {
@@ -12,7 +16,7 @@ export const create = async (departmentData) => {
 
 export const update = async (departmentData) => {
   const { id, ...dataToUpdate } = departmentData;
-  return Department.update(dataToUpdate, { where: id })
+  return Department.update(dataToUpdate, { where: { id } })
 };
 
 export const destroy = async (id: string) => {

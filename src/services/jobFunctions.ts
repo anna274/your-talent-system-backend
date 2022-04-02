@@ -3,7 +3,11 @@ import { JobFunction } from 'models/main';
 
 export const findAll = (filters = {}): any => {
   const query = buildQuery(filters);
-  return JobFunction.findAll({ attributes: ["name", "id"] });
+  return JobFunction.findAll({ where: query, attributes: ["name", "id"], order: [['updatedAt', 'DESC']], });
+};
+
+export const findById = (id: string): any => {
+  return JobFunction.findOne({ where: {id}, attributes: ["name", "id"] });
 };
 
 export const create = async (jobFunctionData) => {
@@ -12,7 +16,7 @@ export const create = async (jobFunctionData) => {
 
 export const update = async (jobFunctionData) => {
   const { id, ...dataToUpdate } = jobFunctionData;
-  return JobFunction.update(dataToUpdate, { where: id })
+  return JobFunction.update(dataToUpdate, { where: {id} })
 };
 
 export const destroy = async (id: string) => {

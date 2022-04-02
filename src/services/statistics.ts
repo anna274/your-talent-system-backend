@@ -9,7 +9,6 @@ import { formatDate } from 'helpers';
 export const findAll = async (query) => {
   const { userId } = query;
   const user = await findAccountById(userId);
-  console.log('user', user)
   const filter = user.dataValues.roles.find(({ name }) => name === 'admin') ? {} : {isPublic: true};
   return StatisticsInfo.findAll({
     where: filter,
