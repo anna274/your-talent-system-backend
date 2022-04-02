@@ -7,7 +7,7 @@ export const getAll = async(req, res, next) => {
     logger.info('GET all jobFunctions', result)
     res.send(result);
   } catch(e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: 'Ошибка при получении записей о должностях' });
     logger.error(e);
   }
 }
@@ -25,7 +25,7 @@ export const getById = async(req, res, next) => {
     }
     logger.info('GET jobFunction by id', jobFunction)
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при получении записи о должности' });
     logger.error(e);
   }
 }
@@ -41,7 +41,7 @@ export const post = async(req, res, next) => {
     logger.info('create jobFunction', jobFunction)
     res.send(jobFunction);
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при создании записи о должности' });
     logger.error(e);
   }
 }
@@ -57,7 +57,7 @@ export const put = async(req, res, next) => {
     logger.info('update jobFunction', jobFunction)
     res.send(jobFunction);
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при обновлении записи о должности' });
     logger.error(e);
   }
 }
@@ -69,7 +69,7 @@ export const deleteOne = async(req, res, next) => {
     logger.info('delete jobFunction')
     res.send();
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при удалении записи о должности' });
     logger.error(e);
   }
 }

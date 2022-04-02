@@ -7,7 +7,7 @@ export const getAll = async(req, res, next) => {
     logger.info('GET all projects', projects)
     res.send(projects);
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при получении записей о проектах' });
     logger.error(e);
   }
 }
@@ -25,7 +25,7 @@ export const getById = async(req, res, next) => {
     }
     logger.info('GET project by id', project)
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при получении записи о проекте' });
     logger.error(e);
   }
 }
@@ -41,7 +41,7 @@ export const post = async(req, res, next) => {
     logger.info('create project', project)
     res.send(project);
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при создании записи о проекте' });
     logger.error(e);
   }
 }
@@ -57,7 +57,7 @@ export const put = async(req, res, next) => {
     logger.info('update project', project)
     res.send(project);
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при обновлении записи о проекте' });
     logger.error(e);
   }
 }
@@ -69,7 +69,7 @@ export const deleteOne = async(req, res, next) => {
     logger.info('delete project')
     res.send();
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при удалении записи о проекте' });
     logger.error(e);
   }
 }

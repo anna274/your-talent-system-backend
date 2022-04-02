@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import { StatisticsInfo, StatisticsType } from 'models/main';
 import { findById as findAccountById } from 'services/accounts';
 import { findAll as findAllProfiles } from 'services/profiles';
@@ -7,13 +8,12 @@ import { STATISTICS_TYPES } from 'consts';
 import { formatDate } from 'helpers';
 
 export const findAll = async (query) => {
-  const { userId } = query;
-  const user = await findAccountById(userId);
-  const filter = user.dataValues.roles.find(({ name }) => name === 'admin') ? {} : {isPublic: true};
+  const commonQuery = await buildQuery(query);
+  const statisticsTypeQuery = buildStatisticsTypeQuery(query)
   return StatisticsInfo.findAll({
-    where: filter,
+    where: commonQuery,
     order: [['createdAt', 'DESC']],
-    include: [{ model: StatisticsType, attributes: ['id', 'name'] }],
+    include: [{ model: StatisticsType, attributes: ['id', 'name'], where: statisticsTypeQuery }],
   });
 };
 
@@ -180,4 +180,63 @@ export const update = async (statisticsData) => {
 
 export const destroy = async (id: string) => {
   return StatisticsInfo.destroy({ where: { id } });
+};
+
+const buildQuery = async (queryParams) => {
+  let query = {};
+  if (queryParams?.filters?.from && queryParams?.filters?.to) {
+    query = {
+      ...query,
+      createdAt: {
+        [Op.between]: [
+          queryParams?.filters?.from,
+          queryParams?.filters?.to,
+        ],
+      },
+    };
+  }
+  if (queryParams?.filters?.from && !queryParams?.filters?.to) {
+    query = {
+      ...query,
+      createdAt: {
+        [Op.gte]: queryParams?.filters?.from,
+      },
+    };
+  }
+  if (queryParams?.filters?.to && !queryParams?.filters?.from) {
+    query = {
+      ...query,
+      createdAt: {
+        [Op.lte]: queryParams?.filters?.to,
+      },
+    };
+  }
+  console.log('query', query)
+  const user = await findAccountById(queryParams.userId);
+  if(user.dataValues.roles.find(({ name }) => name === 'admin')) {
+    if(queryParams?.filters?.isPublic !== 'undefined' && queryParams?.filters?.isPublic !== undefined) {
+      query = {
+        ...query,
+        isPublic: queryParams?.filters?.isPublic
+      }
+    }
+  } else {
+    query = {
+      ...query,
+      isPublic: true
+    }
+  }
+  return query;
+};
+
+const buildStatisticsTypeQuery = (queryParams) => {
+  let query = {};
+  if (queryParams?.filters?.statisticsTypes) {
+    const statisticsTypesIds = JSON.parse(queryParams?.filters?.statisticsTypes);
+    query = {
+      ...query,
+      id: { [Op.in]: statisticsTypesIds },
+    };
+  }
+  return query;
 };

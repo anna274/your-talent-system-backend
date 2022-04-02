@@ -25,7 +25,7 @@ export const getById = async(req, res, next) => {
     }
     logger.info('GET department by id', department)
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при загрузке департамента' });
     logger.error(e);
   }
 }
@@ -41,7 +41,7 @@ export const post = async(req, res, next) => {
     logger.info('create department', department)
     res.send(department);
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при создании департамента' });
     logger.error(e);
   }
 }
@@ -57,7 +57,7 @@ export const put = async(req, res, next) => {
     logger.info('update department', department)
     res.send(department);
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при обновлении записи о департаменте' });
     logger.error(e);
   }
 }
@@ -69,7 +69,7 @@ export const deleteOne = async(req, res, next) => {
     logger.info('delete department')
     res.send();
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при удалении записи о департаменте' });
     logger.error(e);
   }
 }

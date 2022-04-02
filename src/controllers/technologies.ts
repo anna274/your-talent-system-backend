@@ -7,7 +7,7 @@ export const getAll = async(req, res, next) => {
     logger.info('GET all technologies', result)
     res.send(result);
   } catch(e) {
-    res.status(500).send({ message: 'Server error' });
+    res.status(500).send({ message: 'Ошибка при получении записей о технологиях' });
     logger.error(e);
   }
 }
@@ -25,7 +25,7 @@ export const getById = async(req, res, next) => {
     }
     logger.info('GET technology by id', technology)
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при получении записи о технологии' });
     logger.error(e);
   }
 }
@@ -41,7 +41,7 @@ export const post = async(req, res, next) => {
     logger.info('create technology', technology)
     res.send(technology);
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при создании записи о технологии' });
     logger.error(e);
   }
 }
@@ -57,7 +57,7 @@ export const put = async(req, res, next) => {
     logger.info('update technology', technology)
     res.send(technology);
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при обновлении записи о технологии' });
     logger.error(e);
   }
 }
@@ -69,7 +69,7 @@ export const deleteOne = async(req, res, next) => {
     logger.info('delete technology')
     res.send();
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при удалени записи о технологии' });
     logger.error(e);
   }
 }

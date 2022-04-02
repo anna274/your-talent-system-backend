@@ -221,15 +221,11 @@ const Profile = db.define('profile', {
   photoLink: {
     type: DataTypes.STRING,
   },
-  mobilePhone: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
   email: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  carrierStartDate: {
+  careerStartDate: {
     type: DataTypes.DATE,
   },
   companyStartDate: {

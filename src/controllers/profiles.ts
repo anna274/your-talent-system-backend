@@ -7,7 +7,7 @@ export const getAll = async(req, res, next) => {
     logger.info('GET all profiles', profiles)
     res.send(profiles);
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при получении записей о профилях' });
     logger.error(e);
   }
 }
@@ -24,7 +24,7 @@ export const getById = async(req, res, next) => {
     }
     logger.info('GET profile by id', profile)
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при получении записи о профиле' });
     logger.error(e);
   }
 }
@@ -41,7 +41,7 @@ export const getByAccountId = async(req, res, next) => {
     }
     logger.info('GET profile by id', profile)
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при получении записи о профиле' });
     logger.error(e);
   }
 }
@@ -57,7 +57,7 @@ export const post = async(req, res, next) => {
     logger.info('POST profile', profile)
     res.send(profile);
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при создании записи о профиле' });
     logger.error(e);
   }
 }
@@ -73,7 +73,7 @@ export const put = async(req, res, next) => {
     logger.info('update profile', profile)
     res.send(profile);
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при обновлении записи о профиле' });
     logger.error(e);
   }
 }
@@ -85,7 +85,7 @@ export const deleteOne = async(req, res, next) => {
     logger.info('delete profile')
     res.send();
   } catch(e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при удалении записи о профиле' });
     logger.error(e);
   }
 }

@@ -18,7 +18,7 @@ export const getAll = async (req, res, next) => {
     logger.info('GET all positions', positions);
     res.send(positions);
   } catch (e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при получении записей о позициях' });
     logger.error(e);
   }
 };
@@ -34,7 +34,7 @@ export const getById = async (req, res, next) => {
       res.send(position);
     }
   } catch (e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при получении записи о позиции' });
     logger.error(e);
   }
 };
@@ -50,7 +50,7 @@ export const post = async (req, res, next) => {
     logger.info('POST position', position);
     res.send(position);
   } catch (e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при создании записи о позиции' });
     logger.error(e);
   }
 };
@@ -66,7 +66,7 @@ export const put = async (req, res, next) => {
     logger.info('update position', position);
     res.send(position);
   } catch (e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при обновлении записи о позиции' });
     logger.error(e);
   }
 };
@@ -82,7 +82,7 @@ export const patchStatus = async (req, res, next) => {
     logger.info('update position status', position);
     res.send(position);
   } catch (e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при обновлении статуса позиции' });
     logger.error(e);
   }
 };
@@ -94,7 +94,7 @@ export const deleteOne = async (req, res, next) => {
     logger.info('delete position ', positionId);
     res.send();
   } catch (e) {
-    res.status(500).send({ message: e.message });
+    res.status(500).send({ message: 'Ошибка при удалении записи о позиции' });
     logger.error(e);
   }
 };
