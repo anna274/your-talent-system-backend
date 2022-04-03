@@ -5,7 +5,7 @@ const REFRESH_STRATEGY = 'refresh';
 
 export { TOKEN_EXPIRES_IN, REFRESH_TOKEN_EXPIRES_IN, AUTH_STRATEGY, REFRESH_STRATEGY };
 
-export const INCORRECT_PASSWORD_ERROR = "Current password is incorrect";
+export const INCORRECT_PASSWORD_ERROR = "Старый пароль введён не верно";
 export const SERVER_ERROR = "Server error";
 
 export const STATISTICS_TYPES = {

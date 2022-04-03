@@ -1,6 +1,7 @@
 import { Account, Role } from 'models/main';
 import { getSpecialistRole } from 'services/roles'
-import { decode } from 'helpers'
+import { decode, isMatch } from 'helpers'
+import { INCORRECT_PASSWORD_ERROR } from 'consts'
 
 export const getAccountByLogin = (login: string): any => {
   return Account.findOne({
@@ -45,3 +46,14 @@ export const createAccount = async (login: string, password: string, roleId?: st
       .then((account) => findById(account.id))
   );
 };
+
+export const updateAccountPassword = async (userId, currentPassword, newPassword) => {
+  const account = await Account.findOne({ where: { id: userId } });
+  //@ts-ignore
+  if (await isMatch(currentPassword, account.password)) {
+    const decodedPsw = await decode(newPassword);
+    return Account.update({ password: decodedPsw }, { where: { id: userId } });
+  } else {
+    throw Error(INCORRECT_PASSWORD_ERROR);
+  }
+}
