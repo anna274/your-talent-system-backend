@@ -15,10 +15,12 @@ import { createAccount } from 'services/accounts';
 import { createSkills, deleteSkillsByProfileId } from 'services/skills';
 import { uploadImage } from 'services/cloudinary';
 
-export const findAll = (filters = {}): any => {
+export const findAll = async (filters = {}) => {
+  const query = buildQuery(filters)
   const jobFunctionsQuery = buildJobFunctionsQuery(filters);
   const departmentsQuery = buildDepartmentsQuery(filters);
   return Profile.findAll({
+    where: query,
     include: [
       {
         model: Department,
@@ -266,3 +268,13 @@ const buildDepartmentsQuery = (queryParams) => {
   return query;
 };
 
+const buildQuery = (queryParams) => {
+  let query = {};
+  if(queryParams?.filters?.name) {
+    query = {
+      ...query,
+      surname: { [Op.like]: `%${queryParams?.filters?.name}%` }
+    }
+  }
+  return query;
+};

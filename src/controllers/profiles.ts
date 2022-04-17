@@ -11,8 +11,7 @@ import { logger } from 'index';
 
 export const getAll = async (req, res, next) => {
   try {
-    const profiles = await findAll();
-    logger.info('GET all profiles', profiles);
+    const profiles = await findAll(req.query || {});
     res.send(profiles);
   } catch (e) {
     res
