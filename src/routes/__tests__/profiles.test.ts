@@ -89,17 +89,6 @@ describe('profiles API', () => {
       expect(response.body).toEqual(mockedProfile);
     });
 
-    it('Returns 400 is if there is no profile or account data', async () => {
-      const response = await request(app)
-        .post('/')
-        .set('Accept', 'application/json')
-        .send(null);
-      expect(response.status).toEqual(400);
-      expect(response.body).toEqual({
-        message: 'Данные об аккаунте или профиле отсутствуют',
-      });
-    });
-
     it('Returns 500 if server error occuried', async () => {
       //@ts-ignore
       create.mockImplementationOnce(() => {
@@ -124,17 +113,6 @@ describe('profiles API', () => {
         .send({ profileData: mockedProfile });
       expect(response.status).toEqual(200);
       expect(response.body).toEqual(mockedProfile);
-    });
-
-    it('Returns 400 is if there is no profile data', async () => {
-      const response = await request(app)
-        .put('/1')
-        .set('Accept', 'application/json')
-        .send(null);
-      expect(response.status).toEqual(400);
-      expect(response.body).toEqual({
-        message: 'Данные о профиле отсутствуют',
-      });
     });
 
     it('Returns 500 if server error occuried', async () => {

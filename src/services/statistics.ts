@@ -211,7 +211,6 @@ const buildQuery = async (queryParams) => {
       },
     };
   }
-  console.log('query', query)
   const user = await findAccountById(queryParams.userId);
   if(user.dataValues.roles.find(({ name }) => name === 'admin')) {
     if(queryParams?.filters?.isPublic !== 'undefined' && queryParams?.filters?.isPublic !== undefined) {

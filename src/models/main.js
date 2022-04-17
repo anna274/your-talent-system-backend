@@ -435,8 +435,6 @@ export {
   Candidate,
   Duty,
   StatisticsType,
-  TechnologiesStatistics,
-  SkillsStatistics,
   StatisticsInfo,
   PositionStatus,
 };

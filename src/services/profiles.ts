@@ -13,6 +13,7 @@ import {
 } from 'models/main';
 import { createAccount } from 'services/accounts';
 import { createSkills, deleteSkillsByProfileId } from 'services/skills';
+import { uploadImage } from 'services/cloudinary';
 
 export const findAll = (filters = {}): any => {
   const jobFunctionsQuery = buildJobFunctionsQuery(filters);
@@ -44,6 +45,7 @@ export const findAll = (filters = {}): any => {
         ],
       }
     ],
+    order: [['updatedAt', 'DESC']]
   });
 };
 
@@ -144,14 +146,20 @@ export const findByAccountId = (accountId: string): any => {
   });
 };
 
-export const create = async (accountData, profileData) => {
-  const { login, password } = accountData;
+export const create = async (fields, files) => {
+  const { accountData, profileData } = fields;
+  const { login, password } = JSON.parse(accountData);
   const profileAccount = await createAccount(login, password);
-  const { skills, department, jobFunction, ...restInfo } = profileData;
+  const { skills, department, jobFunction, ...restInfo } = JSON.parse(profileData);
   const changedSkills = skills.map(({ technology, level }) => ({
     technologyId: technology.id,
     levelId: level.id,
   }));
+  let photoLink = '';
+  if(!!files.photoLink) {
+    const uploadResponse = await uploadImage(files.photoLink.filepath);
+    photoLink = uploadResponse.secure_url;
+  }
   return Profile.create(
     {
       ...restInfo,
@@ -159,18 +167,27 @@ export const create = async (accountData, profileData) => {
       skills: changedSkills,
       departmentId: department.id,
       jobFunctionId: jobFunction.id,
+      photoLink
     },
     { include: [Skill] }
     //@ts-ignore
   ).then((profile) => findById(profile.id));
 };
 
-export const update = async (profileData) => {
-  const { id, skills, department, job_function, ...restInfo } = profileData;
+export const update = async (fields, files) => {
+  const { id, skills, department, job_function, ...restInfo } = JSON.parse(fields.profileData);
   const changedSkills = skills.map(({ technology, level }) => ({
     technologyId: technology.id,
     levelId: level.id,
   }));
+  let photoLink = '';
+  if(!!files.photoLink) {
+    const uploadResponse = await uploadImage(files.photoLink.filepath);
+    photoLink = uploadResponse.secure_url;
+  } else {
+    photoLink = fields.oldAvatarURL;
+  }
+  
   const savedSkills = await createSkills(changedSkills);
   return findById(id)
     .then(async (project) => {
@@ -178,6 +195,7 @@ export const update = async (profileData) => {
         ...restInfo,
         departmentId: department.id,
         jobFunctionId: job_function.id,
+        photoLink
       });
       await deleteSkillsByProfileId(id);
       // @ts-ignore
