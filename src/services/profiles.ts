@@ -9,7 +9,9 @@ import {
   Level,
   Position,
   Project,
-  PositionStatus
+  PositionStatus,
+  Duty,
+  Scope
 } from 'models/main';
 import { createAccount } from 'services/accounts';
 import { createSkills, deleteSkillsByProfileId } from 'services/skills';
@@ -83,7 +85,18 @@ export const findById = (id: string): any => {
         include: [
           {
             model: Project,
-            attributes: ['id', 'name'],
+            attributes: ['id', 'name', 'description'],
+            include: [{
+              model: Scope,
+              attributes: ['id', 'name'],
+              through: {
+                attributes: [],
+              },
+            }],
+          },
+          {
+            model: Duty,
+            attributes: ['id', 'text'],
           },
           {
             model: JobFunction,
